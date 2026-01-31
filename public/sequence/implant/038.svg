@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1920" height="1080" xmlns="http://www.w3.org/2000/svg">
+  <!-- DESIGN.md: Midnight Slate Background -->
+  <rect width="1920" height="1080" fill="#020617"/>
+  
+  <!-- Dotted Grid (Tech-System Aesthetic) -->
+  <defs>
+    <pattern id="grid" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+      <circle cx="15" cy="15" r="1" fill="rgba(248, 250, 252, 0.05)"/>
+    </pattern>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#grid)"/>
+  
+  <!-- Connection Lines (visible during explosion) -->
+  
+    <line x1="960" y1="487.8787878787879" x2="960" y2="480" 
+          stroke="#00B8D4" stroke-width="2" opacity="0.18686868686868688" stroke-dasharray="5,5"/>
+    <line x1="960" y1="600" x2="960" y2="629.4949494949495" 
+          stroke="#00B8D4" stroke-width="2" opacity="0.18686868686868688" stroke-dasharray="5,5"/>
+  
+  
+  <!-- Crown (Top Part) - Antalya Turquoise -->
+  <g transform="translate(960, 427.8787878787879) rotate(67.27272727272728)">
+    <ellipse cx="0" cy="-30" rx="100" ry="60" fill="#00B8D4" opacity="0.8878787878787879"/>
+    <rect x="-80" y="-30" width="160" height="60" fill="#00B8D4" opacity="0.8878787878787879"/>
+    <text x="0" y="0" text-anchor="middle" fill="#F8FAFC" font-size="20" font-weight="bold">CROWN</text>
+  </g>
+  
+  <!-- Abutment (Middle Part) - Sand Gold -->
+  <g transform="translate(960, 540) rotate(134.54545454545456)">
+    <rect x="-60" y="-40" width="120" height="80" fill="#FFD54F" opacity="0.8878787878787879"/>
+    <text x="0" y="5" text-anchor="middle" fill="#020617" font-size="18" font-weight="bold">ABUTMENT</text>
+  </g>
+  
+  <!-- Titanium Screw (Bottom Part) - Glass White -->
+  <g transform="translate(960, 689.4949494949495) rotate(201.81818181818184)">
+    <polygon points="0,-80 30,-20 30,80 -30,80 -30,-20" fill="#F8FAFC" opacity="0.8878787878787879"/>
+    <circle cx="0" cy="-70" r="8" fill="#0277BD"/>
+    <text x="0" y="20" text-anchor="middle" fill="#020617" font-size="16" font-weight="bold">TITANIUM</text>
+    <text x="0" y="40" text-anchor="middle" fill="#020617" font-size="16" font-weight="bold">SCREW</text>
+  </g>
+  
+  <!-- Frame Number Label -->
+  <text x="100" y="100" fill="rgba(248, 250, 252, 0.3)" font-size="48" font-family="monospace">
+    Frame 038/100
+  </text>
+  
+  <!-- Progress Indicator -->
+  <rect x="100" y="120" width="400" height="10" fill="rgba(255, 255, 255, 0.1)" rx="5"/>
+  <rect x="100" y="120" width="149.4949494949495" height="10" fill="#00B8D4" rx="5"/>
+</svg>

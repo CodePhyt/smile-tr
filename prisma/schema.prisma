@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Treatment {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  description  String   @db.Text
+  shortDesc    String
+  price        Int      // Price in USD
+  recoveryTime String
+  imageUrl     String
+  features     String[] // Array of features/benefits
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  leads        Lead[]
+}
+
+model Lead {
+  id          String   @id @default(cuid())
+  name        String?
+  email       String?
+  phone       String?
+  whatsapp    String?
+  treatment   String?
+  message     String?  @db.Text
+  sentiment   String?  // "HOT" or "COLD"
+  source      String?  // "chat", "contact_form", etc.
+  createdAt   DateTime @default(now())
+  
+  treatmentId String?
+  Treatment   Treatment? @relation(fields: [treatmentId], references: [id])
+  
+  @@index([createdAt])
+  @@index([sentiment])
+}
+
+model BlogPost {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  excerpt     String
+  content     String   @db.Text
+  category    String   // "treatments", "antalya-guide", "patient-tips"
+  imageUrl    String
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([category])
+  @@index([published])
+}
+
+model PatientStory {
+  id            String   @id @default(cuid())
+  patientName   String
+  treatment     String
+  beforeImage   String
+  afterImage    String
+  testimonial   String   @db.Text
+  videoUrl      String?
+  featured      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  
+  @@index([featured])
+  @@index([treatment])
+}

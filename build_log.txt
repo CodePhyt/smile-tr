@@ -1,0 +1,24 @@
+
+> dental-platform@0.1.0 build
+> next build
+
+▲ Next.js 16.1.1 (Turbopack)
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 12.1s
+  Running TypeScript ...
+  Collecting page data using 11 workers ...
+  Generating static pages using 11 workers (0/11) ...
+Error occurred prerendering page "/en/assessment". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Couldn't find next-intl config file. Please follow the instructions at https://next-intl.dev/docs/getting-started/app-router
+    at aH (C:\Users\isawd\OneDrive\Masaüstü\DCT like project\dental-platform\.next\server\chunks\ssr\_0faec61c._.js:1:68127)
+    at <unknown> (C:\Users\isawd\OneDrive\Masaüstü\DCT like project\dental-platform\.next\server\chunks\ssr\_0faec61c._.js:1:68390)
+    at <unknown> (C:\Users\isawd\OneDrive\Masaüstü\DCT like project\dental-platform\.next\server\chunks\ssr\_0faec61c._.js:1:69146)
+    at <unknown> (C:\Users\isawd\OneDrive\Masaüstü\DCT like project\dental-platform\.next\server\chunks\ssr\_0faec61c._.js:1:69674)
+    at aT (C:\Users\isawd\OneDrive\Masaüstü\DCT like project\dental-platform\.next\server\chunks\ssr\_0faec61c._.js:1:69867)
+    at a$ (C:\Users\isawd\OneDrive\Masaüstü\DCT like project\dental-platform\.next\server\chunks\ssr\_0faec61c._.js:1:70401) {
+  digest: '2588866730'
+}
+Export encountered an error on /[locale]/assessment/page: /en/assessment, exiting the build.
+⨯ Next.js build worker exited with code: 1 and signal: null
