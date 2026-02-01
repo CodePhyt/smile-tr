@@ -98,7 +98,8 @@ export function BentoVideoCard({ videoUrl, thumbnail, title, description }: Vide
 
             {/* Content */}
             <div className="relative z-10 h-full flex flex-col justify-end p-8 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent">
-                <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg">{title}</h3>
+                <h3 className="text-2xl font-bold text-white mb-1 drop-shadow-lg">{title}</h3>
+                {/* Removed redundant description container if not strictly needed or empty */}
                 {description && <p className="text-slate-200 text-sm font-medium drop-shadow-md">{description}</p>}
             </div>
         </div>

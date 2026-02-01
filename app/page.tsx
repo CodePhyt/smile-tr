@@ -139,19 +139,26 @@ export default function HomePage() {
             </BentoCard>
 
             {/* Additional small cards */}
+            {/* Additional small cards */}
             <BentoCard size="small">
-              <div className="h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-sky-900/40 to-slate-900/40 group">
-                <div className="text-6xl font-black bg-clip-text text-transparent bg-gradient-to-r from-sky-300 via-sky-400 to-sky-600 mb-2 drop-shadow-[0_0_15px_rgba(14,165,233,0.3)] transform group-hover:scale-110 transition-transform duration-300">15+</div>
-                <div className="h-1 w-12 bg-sky-500/50 rounded-full mb-3"></div>
-                <p className="text-slate-300 text-lg font-medium">Years of Excellence</p>
+              <div className="h-full flex flex-col items-center justify-center p-6 text-center bg-slate-900/40 backdrop-blur-sm border border-white/5 relative group overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-sky-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="relative z-10">
+                  <div className="text-5xl font-black text-white mb-2 tracking-tight group-hover:scale-110 transition-transform duration-300">15+</div>
+                  <p className="text-sky-400 text-sm font-bold uppercase tracking-widest mb-1">Years</p>
+                  <p className="text-slate-400 text-xs">of Excellence</p>
+                </div>
               </div>
             </BentoCard>
 
             <BentoCard size="small">
-              <div className="h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-emerald-900/40 to-slate-900/40 group">
-                <div className="text-6xl font-black bg-clip-text text-transparent bg-gradient-to-r from-emerald-300 via-emerald-400 to-emerald-600 mb-2 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)] transform group-hover:scale-110 transition-transform duration-300">98%</div>
-                <div className="h-1 w-12 bg-emerald-500/50 rounded-full mb-3"></div>
-                <p className="text-slate-300 text-lg font-medium">Recommend Us</p>
+              <div className="h-full flex flex-col items-center justify-center p-6 text-center bg-slate-900/40 backdrop-blur-sm border border-white/5 relative group overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="relative z-10">
+                  <div className="text-5xl font-black text-white mb-2 tracking-tight group-hover:scale-110 transition-transform duration-300">98%</div>
+                  <p className="text-emerald-400 text-sm font-bold uppercase tracking-widest mb-1">Recommend</p>
+                  <p className="text-slate-400 text-xs">Our Services</p>
+                </div>
               </div>
             </BentoCard>
           </BentoGrid>
