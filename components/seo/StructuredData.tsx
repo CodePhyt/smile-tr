@@ -9,25 +9,23 @@ export default function StructuredData() {
     const organizationSchema = {
         '@context': 'https://schema.org',
         '@type': 'Dentist',
-        name: 'Smile Turkey Dental Clinic',
-        description: 'Premium dental tourism clinic in Antalya, Turkey offering Hollywood Smile, veneers, implants with lifetime warranty.',
+        name: 'Smile Turkey',
+        description: 'Premium dental tourism clinic in Antalya, Turkey',
         url: 'https://smileturkey.com',
-        logo: 'https://smileturkey.com/logo.png',
+        logo: 'https://smileturkey.com/favicon.png',
         image: 'https://smileturkey.com/og-image.jpg',
-        telephone: '+90-242-XXX-XXXX',
-        email: 'info@smileturkey.com',
+        telephone: '+90-530-287-6350',
+        email: 'nnesipoglu@outlook.com',
         address: {
             '@type': 'PostalAddress',
-            streetAddress: 'Dental Clinic Address',
+            streetAddress: 'Konyaaltı',
             addressLocality: 'Antalya',
-            addressRegion: 'Antalya',
-            postalCode: '07XXX',
             addressCountry: 'TR',
         },
         geo: {
             '@type': 'GeoCoordinates',
-            latitude: 36.8969,
-            longitude: 30.7133,
+            latitude: 36.8840,
+            longitude: 30.7052,
         },
         openingHoursSpecification: [
             {
@@ -46,7 +44,7 @@ export default function StructuredData() {
         aggregateRating: {
             '@type': 'AggregateRating',
             ratingValue: '4.9',
-            reviewCount: '4832',
+            reviewCount: '10000',
             bestRating: '5',
             worstRating: '1',
         },

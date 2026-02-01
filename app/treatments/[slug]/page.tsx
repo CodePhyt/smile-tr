@@ -1,13 +1,8 @@
-import { prisma } from '@/lib/prisma';
-import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, CheckCircle, Clock, DollarSign, Award } from 'lucide-react';
-
-interface TreatmentPageProps {
-    params: {
-        slug: string;
-    };
-}
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
+import ShareButtons from '@/components/ui/ShareButtons';
+import ScrollReveal from '@/components/ui/ScrollReveal';
 
 // Fallback data when database is not connected
 const FALLBACK_TREATMENTS = {
@@ -17,7 +12,7 @@ const FALLBACK_TREATMENTS = {
         description: 'Transform your smile with premium porcelain veneers. Our ultra-thin, custom-made shells are designed to perfectly match your natural teeth while correcting imperfections.',
         price: '€2,500',
         recoveryTime: '1-2 weeks',
-        imageUrl: 'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?q=80&w=1920&auto=format&fit=crop',
+        imageUrl: '/assets/treatments/veneers-hero.jpg',
         features: [
             'E-max Porcelain Materials',
             '10-Year Warranty',
@@ -49,7 +44,7 @@ const FALLBACK_TREATMENTS = {
         description: 'Restore missing teeth with permanent, natural-looking implants. We use premium Straumann and Nobel Biocare systems for the highest success rates.',
         price: '€1,200',
         recoveryTime: '3-6 months',
-        imageUrl: 'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?q=80&w=1920&auto=format&fit=crop',
+        imageUrl: '/assets/treatments/implants-hero.jpg',
         features: [
             'Straumann/Nobel Biocare Systems',
             'Lifetime Warranty',
@@ -81,7 +76,7 @@ const FALLBACK_TREATMENTS = {
         description: 'Achieve a brighter, whiter smile with our professional whitening treatments. Safe, effective, and clinically proven results up to 8 shades lighter.',
         price: '€400',
         recoveryTime: '24 hours',
-        imageUrl: 'https://images.unsplash.com/photo-1609840114035-3c981857b665?q=80&w=1920&auto=format&fit=crop',
+        imageUrl: '/assets/treatments/whitening-hero.jpg',
         features: [
             'Up to 8 Shades Lighter',
             'LED Light Activation',
@@ -113,7 +108,7 @@ const FALLBACK_TREATMENTS = {
         description: 'Complete smile transformation with veneers, whitening, and contouring. Get the celebrity smile you\'ve always dreamed of in just one week.',
         price: '€5,500',
         recoveryTime: '1-2 weeks',
-        imageUrl: 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?q=80&w=1920&auto=format&fit=crop',
+        imageUrl: '/assets/treatments/hollywood-smile-hero.jpg',
         features: [
             'Full Smile Design (16-20 veneers)',
             'Digital Smile Preview',
@@ -145,7 +140,7 @@ const FALLBACK_TREATMENTS = {
         description: 'Complete dental rehabilitation combining implants, veneers, and crowns. Restore function and aesthetics with our comprehensive treatment plan.',
         price: '€12,000',
         recoveryTime: '6-12 months',
-        imageUrl: 'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?q=80&w=1920&auto=format&fit=crop',
+        imageUrl: '/assets/treatments/full-restoration-hero.jpg',
         features: [
             'Comprehensive Treatment Plan',
             'Implants + Veneers + Crowns',
@@ -183,38 +178,42 @@ export async function generateStaticParams() {
     ];
 }
 
-export default async function TreatmentPage({ params }: TreatmentPageProps) {
-    // Await params in Next.js 15+
-    const { slug } = await params;
+export default function TreatmentPage({ params }: { params: { slug: string } }) {
+    const { slug } = params;
 
-    let treatment;
-
-    // Try database first, fall back to static data
-    try {
-        treatment = await prisma.treatment.findUnique({
-            where: { slug },
-        });
-    } catch (error) {
-        // Using fallback data (database not connected)
-    }
-
-    // Use fallback data if database query failed or returned null
-    if (!treatment) {
-        treatment = FALLBACK_TREATMENTS[slug as keyof typeof FALLBACK_TREATMENTS];
-    }
+    const treatment = FALLBACK_TREATMENTS[slug as keyof typeof FALLBACK_TREATMENTS];
 
     if (!treatment) {
-        notFound();
+        return (
+            <div className="min-h-screen pt-20 flex items-center justify-center">
+                <div className="text-center">
+                    <h1 className="text-4xl font-bold text-white mb-4">Treatment Not Found</h1>
+                    <Link href="/" className="text-sky-400 hover:text-sky-300">
+                        Return to Home
+                    </Link>
+                </div>
+            </div>
+        );
     }
 
     return (
         <div className="min-h-screen pt-20">
-            {/* Back Button */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <Link href="/" className="inline-flex items-center text-slate-400 hover:text-sky-400 transition-colors">
-                    <ArrowLeft className="w-4 h-4 mr-2" />
+            {/* Breadcrumbs */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
+                <Breadcrumbs />
+            </div>
+
+            {/* Back Button and Share */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center pb-4">
+                <Link href="/" className="inline-flex items-center text-slate-400 hover:text-sky-400 transition-colors group">
+                    <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
                     Back to Home
                 </Link>
+                <ShareButtons
+                    url={typeof window !== 'undefined' ? window.location.href : ''}
+                    title={treatment.name}
+                    description={treatment.description}
+                />
             </div>
 
             {/* Hero Section */}

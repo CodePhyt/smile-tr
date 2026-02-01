@@ -36,7 +36,7 @@ This project adheres to a code of professionalism and respect. By participating,
 1. Fork the repository
 2. Clone your fork:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/smile-tr.git
+   git clone https://github.com/codephyt/smile-tr
    cd smile-tr
    ```
 

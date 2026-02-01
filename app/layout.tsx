@@ -5,6 +5,9 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ChatWidget from '@/components/ChatWidget';
 import StructuredData from '@/components/seo/StructuredData';
+import ScrollToTop from '@/components/ui/ScrollToTop';
+import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
+import MetaPixel from '@/components/analytics/MetaPixel';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://smileturkey.com'),
@@ -86,47 +89,16 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
-        {/* JSON-LD Structured Data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'Dentist',
-              name: 'Smile Turkey',
-              description: 'Premium dental tourism clinic in Antalya, Turkey',
-              url: 'https://smileturkey.com',
-              logo: 'https://smileturkey.com/favicon.png',
-              image: 'https://smileturkey.com/og-image.jpg',
-              telephone: '+90-530-287-6350',
-              email: 'nnesipoglu@outlook.com',
-              address: {
-                '@type': 'PostalAddress',
-                streetAddress: 'Konyaaltı',
-                addressLocality: 'Antalya',
-                addressCountry: 'TR',
-              },
-              geo: {
-                '@type': 'GeoCoordinates',
-                latitude: '36.8840',
-                longitude: '30.7052',
-              },
-              priceRange: '$$',
-              openingHours: ['Mo-Fr 09:00-18:00', 'Sa 09:00-14:00'],
-              aggregateRating: {
-                '@type': 'AggregateRating',
-                ratingValue: '4.9',
-                reviewCount: '10000',
-              },
-            }),
-          }}
-        />
+        {/* Analytics */}
+        <GoogleAnalytics />
+        <MetaPixel />
       </head>
       <body className="relative min-h-screen bg-slate-950 text-white">
         <Header />
         <main>{children}</main>
         <Footer />
         <ChatWidget />
+        <ScrollToTop />
         <StructuredData />
       </body>
     </html>

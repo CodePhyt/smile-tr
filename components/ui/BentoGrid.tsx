@@ -2,6 +2,7 @@
 
 import { ReactNode } from 'react';
 import { motion } from 'framer-motion';
+import { IMAGE_CATEGORIES } from '@/lib/image-sources';
 
 interface BentoGridProps {
     children: ReactNode;
@@ -189,7 +190,7 @@ export function BentoMapCard({ location }: MapCardProps) {
             <div
                 className="absolute inset-0 bg-cover bg-center"
                 style={{
-                    backgroundImage: 'url(https://images.unsplash.com/photo-1569163139394-de4798aa62b6?q=80&w=1920&auto=format&fit=crop)',
+                    backgroundImage: `url(${IMAGE_CATEGORIES.MISC.antalya_cityscape})`,
                 }}
             >
                 <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"></div>
