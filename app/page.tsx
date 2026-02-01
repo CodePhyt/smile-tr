@@ -170,46 +170,45 @@ export default function HomePage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                step: '01',
-                title: 'Arrival',
-                description: 'Luxury airport transfer in a Mercedes S-Class to your 5-star beachfront hotel',
-                image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=600&auto=format&fit=crop',
-                icon: '✈️',
+            {
+              step: '01',
+            title: 'Arrival',
+            description: 'Luxury airport transfer in a Mercedes S-Class to your 5-star beachfront hotel',
+            image: IMAGE_CATEGORIES.JOURNEY.arrival,
+            icon: '✈️',
               },
-              {
-                step: '02',
-                title: 'Consultation',
-                description: 'Meet your specialist, digital scan, custom treatment plan with 3D preview',
-                image: 'https://images.unsplash.com/photo-1629909615957-be38eb8c3e6a?q=80&w=600&auto=format&fit=crop',
-                icon: '🦷',
+            {
+              step: '02',
+            title: 'Consultation',
+            description: 'Meet your specialist, digital scan, custom treatment plan with 3D preview',
+            image: IMAGE_CATEGORIES.JOURNEY.consultation,
+            icon: '🦷',
               },
-              {
-                step: '03',
-                title: 'Transformation',
-                description: 'Premium treatment in our state-of-the-art clinic, then explore Antalya\'s beaches',
-                image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=600&auto=format&fit=crop',
-                icon: '✨',
+            {
+              step: '03',
+            title: 'Transformation',
+            description: 'Premium treatment in our state-of-the-art clinic, then explore Antalya\'s beaches',
+            image: IMAGE_CATEGORIES.JOURNEY.transformation,
+            icon: '✨',
               },
             ].map((phase, idx) => (
-              <div key={idx} className="crystal-card p-8 relative group hover:scale-105 transition-transform">
-                <div
-                  className="absolute inset-0 rounded-2xl opacity-20 group-hover:opacity-30 transition-opacity bg-cover bg-center"
-                  style={{ backgroundImage: `url(${phase.image})` }}
-                />
-                <div className="relative z-10">
-                  <div className="text-6xl mb-4">{phase.icon}</div>
-                  <div className="text-sm text-sky-400 font-bold mb-2">STEP {phase.step}</div>
-                  <h3 className="text-2xl font-bold text-white mb-4">{phase.title}</h3>
-                  <p className="text-slate-400 leading-relaxed">{phase.description}</p>
-                </div>
-
-                {/* Connection line */}
-                {idx < 2 && (
-                  <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-0.5 bg-sky-500/30" />
-                )}
+            <div key={idx} className="crystal-card p-8 relative group hover:scale-105 transition-transform">
+              <div
+                className="absolute inset-0 rounded-2xl opacity-20 group-hover:opacity-30 transition-opacity bg-cover bg-center"
+                style={{ backgroundImage: `url(${phase.image})` }}
+              />
+              <div className="relative z-10">
+                <div className="text-6xl mb-4">{phase.icon}</div>
+                <div className="text-sm text-sky-400 font-bold mb-2">STEP {phase.step}</div>
+                <h3 className="text-2xl font-bold text-white mb-4">{phase.title}</h3>
+                <p className="text-slate-400 leading-relaxed">{phase.description}</p>
               </div>
+
+              {/* Connection line */}
+              {idx < 2 && (
+                <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-0.5 bg-sky-500/30" />
+              )}
+            </div>
             ))}
           </div>
         </div>
