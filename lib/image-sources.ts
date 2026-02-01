@@ -93,6 +93,22 @@ export const IMAGE_CATEGORIES = {
     // Misc Images
     MISC: {
         antalya_cityscape: 'https://images.unsplash.com/photo-1569163139394-de4798aa62b6?q=80&w=1920&auto=format&fit=crop'
+    },
+
+    // Alias for backward compatibility
+    TESTIMONIALS: {
+        sarah_before: '/assets/stories/sarah-before.png',
+        sarah_after: '/assets/stories/sarah-after.png',
+        michael_before: '/assets/stories/michael-before.png',
+        michael_after: '/assets/stories/michael-after.png',
+        emma_before: '/assets/stories/emma-before.png',
+        emma_after: '/assets/stories/emma-after.png',
+        ahmed_before: '/assets/stories/ahmed-before.png',
+        ahmed_after: '/assets/stories/ahmed-after.png',
+        lisa_before: '/assets/stories/lisa-before.png',
+        lisa_after: '/assets/stories/lisa-after.png',
+        carlos_before: '/assets/stories/carlos-before.png',
+        carlos_after: '/assets/stories/carlos-after.png'
     }
 } as const;
 
