@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { ArrowRight, Star, CheckCircle, Clock, Award, Play } from 'lucide-react';
 import CinematicHero from '@/components/hero/CinematicHero';
+import EmmaStorySection from '@/components/homepage/EmmaStorySection';
 import SavingsCalculator from '@/components/features/SavingsCalculator';
 import DiamondTrustSection from '@/components/homepage/DiamondTrustSection';
 import { IMAGE_CATEGORIES } from '@/lib/image-sources';
@@ -14,6 +15,9 @@ export default function HomePage() {
 
       {/* S (STRATEGY/HOOK) - Cinematic Scroll Hero with Image Sequence */}
       <CinematicHero />
+
+      {/* Real Patient Story - Emma */}
+      <EmmaStorySection />
 
       {/* Quick Hook Section - Your Dream Smile, 70% Cheaper */}
       <section className="relative py-24 overflow-hidden">
@@ -176,7 +180,7 @@ export default function HomePage() {
             Ready for Your <span className="gradient-text">Transformation?</span>
           </h2>
           <p className="text-2xl text-slate-400 mb-10">
-            Book a free consultation with Sarah, our AI concierge
+            Book a free consultation with Safiye, our AI concierge
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
@@ -184,7 +188,7 @@ export default function HomePage() {
               href="#chat"
               className="btn-primary text-xl px-12 py-6 group"
             >
-              Start Chatting with Sarah
+              Start Chatting with Safiye
               <ArrowRight className="inline-block ml-3 w-6 h-6 group-hover:translate-x-2 transition-transform" />
             </Link>
             <Link href="/contact" className="btn-secondary text-xl px-12 py-6">

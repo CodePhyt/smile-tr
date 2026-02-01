@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 
 const treatments = [
     { name: 'Dental Veneers', slug: 'dental-veneers' },
@@ -14,6 +15,7 @@ const treatments = [
 ];
 
 export default function Header() {
+    const pathname = usePathname();
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isTreatmentsOpen, setIsTreatmentsOpen] = useState(false);
@@ -25,6 +27,9 @@ export default function Header() {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    // Hide global header on Assessment page to facilitate focused funnel flow
+    if (pathname === '/assessment') return null;
 
     return (
         <header

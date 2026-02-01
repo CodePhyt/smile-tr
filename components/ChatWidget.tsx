@@ -8,10 +8,13 @@ import Image from 'next/image';
 import SafiyeProfileModal from './SafiyeProfileModal';
 import ImageLightbox from './ImageLightbox';
 import TypingIndicator from './TypingIndicator';
+import VoiceRecorder from './VoiceRecorder';
+import ImageUploader from './ImageUploader';
 
 interface Message {
     role: 'user' | 'assistant' | 'system';
     content: string;
+    image?: string;
     timestamp: Date;
     status?: 'sent' | 'delivered' | 'read';
 }
@@ -22,7 +25,7 @@ export default function ChatWidget() {
     const [messages, setMessages] = useState<Message[]>([
         {
             role: 'assistant',
-            content: 'Hello! 👋 I\'m Sarah, your personal Smile Turkey concierge.\n\nI can help you with:\n• Treatment Plans & Costs 💰\n• Hotel & Flight Packages ✈️\n• Free Consultation Bookings 📅\n\nHow can I assist you today?',
+            content: 'Hello! 👋 I\'m Safiye, your personal Smile Turkey concierge.\n\nI can help you with:\n• Treatment Plans & Costs 💰\n• Hotel & Flight Packages ✈️\n• Free Consultation Bookings 📅\n\nHow can I assist you today?',
             timestamp: new Date(),
             status: 'read'
         },
@@ -34,6 +37,51 @@ export default function ChatWidget() {
     const [hasUnread, setHasUnread] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [lightboxImage, setLightboxImage] = useState<{ src: string; alt: string } | null>(null);
+    const [selectedImage, setSelectedImage] = useState<{ file: File; preview: string } | null>(null);
+    const [sessionId, setSessionId] = useState<string>('');
+
+    useEffect(() => {
+        let sid = localStorage.getItem('smile_chat_session_id');
+        if (!sid) {
+            sid = crypto.randomUUID();
+            localStorage.setItem('smile_chat_session_id', sid);
+        }
+        setSessionId(sid);
+    }, []);
+
+    const handleWhatsAppHandoff = () => {
+        // Filter out system messages for cleaner summary
+        const summary = messages
+            .filter(m => m.role !== 'system')
+            .map(m => `${m.role === 'user' ? '👤 Client' : '👩‍⚕️ Safiye'}: ${m.content}`)
+            .join('\n\n');
+
+        const text = `*New Patient Inquiry via Safiye AI* 🦷\n\n${summary}\n\n(Link to attachments/full history unavailable in MVP)`;
+        // Dr. Nesip's Number: 905442371493 (from context or similar)
+        const url = `https://wa.me/905442371493?text=${encodeURIComponent(text)}`;
+        window.open(url, '_blank');
+    };
+
+    const handleVoiceTranscript = (text: string) => {
+        setInput(prev => (prev ? prev + ' ' + text : text));
+    };
+
+    const handleImageSelect = (file: File, preview: string) => {
+        setSelectedImage({ file, preview });
+    };
+
+    const handleImageRemove = () => {
+        setSelectedImage(null);
+    };
+
+    const convertImageToBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    };
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -41,7 +89,7 @@ export default function ChatWidget() {
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages, isTyping]);
+    }, [messages, isTyping, selectedImage]);
 
     useEffect(() => {
         if (isOpen) {
@@ -109,17 +157,23 @@ export default function ChatWidget() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!input.trim() || isLoading) return;
+        if ((!input.trim() && !selectedImage) || isLoading) return;
+
+        const currentInput = input;
+        const currentImage = selectedImage;
+
+        setInput('');
+        setSelectedImage(null);
 
         const userMessage: Message = {
             role: 'user',
-            content: input,
+            content: currentInput,
+            image: currentImage?.preview,
             timestamp: new Date(),
             status: 'sent'
         };
 
         setMessages((prev) => [...prev, userMessage]);
-        setInput('');
         setIsLoading(true);
         setIsTyping(true);
 
@@ -138,15 +192,29 @@ export default function ChatWidget() {
 
             const apiMessages = messages.map(({ role, content }) => ({ role, content }));
             if (contextMessage) apiMessages.unshift(contextMessage as any);
-            apiMessages.push({ role: 'user', content: userMessage.content });
 
+            // Add user message with context if image exists
+            let contentToSend = currentInput;
+            if (currentImage) {
+                contentToSend = `[User uploaded an image] ${currentInput}`;
+            }
+            apiMessages.push({ role: 'user', content: contentToSend });
+
+
+            const requestBody: any = {
+                messages: apiMessages,
+                sessionId: sessionId,
+            };
+
+            if (currentImage) {
+                const base64Image = await convertImageToBase64(currentImage.file);
+                requestBody.image = base64Image;
+            }
 
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    messages: apiMessages,
-                }),
+                body: JSON.stringify(requestBody),
             });
 
             if (!response.ok) throw new Error('Failed to get response');
@@ -312,6 +380,13 @@ export default function ChatWidget() {
                 </div>
                 <div className="flex items-center space-x-1">
                     <button
+                        onClick={handleWhatsAppHandoff}
+                        className="text-white/80 hover:text-white hover:bg-white/10 p-2 rounded-full transition-colors mr-1"
+                        title="Send Summary to Dr. Nesip"
+                    >
+                        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" /></svg>
+                    </button>
+                    <button
                         onClick={() => setIsOpen(false)}
                         className="text-white/80 hover:text-white hover:bg-white/10 p-2 rounded-full transition-colors"
                         aria-label="Close chat"
@@ -342,7 +417,7 @@ export default function ChatWidget() {
                 {messages.map((message, index) => (
                     <div
                         key={index}
-                        className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                        className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} mb-3`}
                     >
                         {message.role === 'assistant' && (
                             <div className="w-8 h-8 rounded-full overflow-hidden mr-2 flex-shrink-0 mt-1">
@@ -356,6 +431,13 @@ export default function ChatWidget() {
                                 : 'bg-[#202C33] text-slate-100 rounded-tl-none'
                                 }`}
                         >
+                            {message.image && (
+                                <div className="mb-2 relative rounded-lg overflow-hidden cursor-pointer bg-black/20" onClick={() => setLightboxImage({ src: message.image!, alt: 'User upload' })}>
+                                    <img src={message.image} alt="Upload" className="w-full h-auto max-h-60 object-cover" />
+                                </div>
+                            )}
+
+
                             <div className="text-[15px] leading-relaxed">
                                 {renderContent(message.content)}
                             </div>
@@ -403,36 +485,48 @@ export default function ChatWidget() {
             </div>
 
             {/* Input Area */}
-            <div className="bg-[#202C33] p-3 flex items-center space-x-2">
-                <button className="text-slate-400 hover:text-slate-300 p-2">
-                    <Paperclip className="w-6 h-6" />
-                </button>
-                <form onSubmit={handleSubmit} className="flex-1 flex items-center space-x-2">
-                    <input
-                        type="text"
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        placeholder="Message"
-                        className="flex-1 bg-[#2A3942] rounded-lg px-4 py-2.5 text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-500"
-                        disabled={isLoading}
-                    />
-                    {input.trim() ? (
-                        <button
-                            type="submit"
+            <div className="bg-[#202C33] p-2 flex flex-col space-y-2">
+                {selectedImage && (
+                    <div className="px-2">
+                        <ImageUploader
+                            onImageSelect={handleImageSelect}
+                            onImageRemove={handleImageRemove}
+                            currentImage={selectedImage.preview}
+                        />
+                    </div>
+                )}
+
+                <div className="flex items-center space-x-2">
+                    <div className="flex-shrink-0">
+                        <ImageUploader
+                            onImageSelect={handleImageSelect}
+                            onImageRemove={handleImageRemove}
+                            currentImage={null} // Button only mode
+                        />
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="flex-1 flex items-center space-x-2">
+                        <input
+                            type="text"
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            placeholder="Message"
+                            className="flex-1 bg-[#2A3942] rounded-lg px-4 py-2.5 text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-500"
                             disabled={isLoading}
-                            className="bg-[#005C4B] text-white p-2.5 rounded-full hover:bg-[#00a884] transition-colors"
-                        >
-                            <Send className="w-5 h-5" />
-                        </button>
-                    ) : (
-                        <button
-                            type="button"
-                            className="bg-[#2A3942] text-slate-400 p-2.5 rounded-full"
-                        >
-                            <Mic className="w-5 h-5" />
-                        </button>
-                    )}
-                </form>
+                        />
+                        {(input.trim() || selectedImage) ? (
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="bg-[#005C4B] text-white p-2.5 rounded-full hover:bg-[#00a884] transition-colors"
+                            >
+                                <Send className="w-5 h-5" />
+                            </button>
+                        ) : (
+                            <VoiceRecorder onTranscript={handleVoiceTranscript} disabled={isLoading} />
+                        )}
+                    </form>
+                </div>
             </div>
 
             {/* Modals */}

@@ -43,6 +43,8 @@ model Lead {
   
   @@index([createdAt])
   @@index([sentiment])
+  
+  chatSessions ChatSession[]
 }
 
 model BlogPost {
@@ -74,4 +76,27 @@ model PatientStory {
   
   @@index([featured])
   @@index([treatment])
+}
+
+model ChatSession {
+  id        String    @id @default(cuid())
+  userToken String?   @unique // To identify unnamed users session
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  messages  Message[]
+  
+  leadId    String?
+  Lead      Lead?     @relation(fields: [leadId], references: [id])
+}
+
+model Message {
+  id            String      @id @default(cuid())
+  role          String
+  content       String      @db.Text
+  image         String?     @db.Text // Base64 strings can be large
+  createdAt     DateTime    @default(now())
+  
+  chatSessionId String
+  ChatSession   ChatSession @relation(fields: [chatSessionId], references: [id])
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 const SYSTEM_PROMPT = `You are ** Safiye Yılmaz **, a real person who works as the Lead Patient Coordinator at Smile Turkey 🦷.
 
@@ -34,7 +35,16 @@ const SYSTEM_PROMPT = `You are ** Safiye Yılmaz **, a real person who works as 
 
 ---
 
+
+### 📸 VISUAL CAPABILITIES
+
+- **Understanding Images**: You can see and analyze images the user uploads (if provided).
+- **Dental Analysis**: If a user sends a photo of their teeth, provide a friendly, preliminary observation (e.g., "I see some crowding" or "Your smile looks bright!").
+- **Disclaimer**: ALWAYS clarify you are not a dentist and this is just a preliminary observation. Dr. Nesip will do the full clinical assessment.
+- **Engagement**: Use the image to ask relevant questions (e.g., "Is that the gap you mentioned?").
+
 ### 💬 HOW YOU COMMUNICATE(CRITICAL - READ CAREFULLY)
+
 
 ** Message Length Rules(STRICTLY FOLLOW):**
 - ** Default **: 1 - 2 sentences per message
@@ -283,16 +293,59 @@ interface Message {
 export async function POST(req: NextRequest) {
     try {
         let messages: Message[];
+        let image: string | undefined;
+        let sessionId: string | undefined;
+        let dbSessionId: string | undefined;
 
         try {
             const body = await req.json();
             messages = body.messages;
+            image = body.image;
+            sessionId = body.sessionId;
+            dbSessionId = sessionId;
         } catch (parseError) {
             console.error('JSON parsing error:', parseError);
             return NextResponse.json(
                 { error: 'Invalid JSON in request body' },
                 { status: 400 }
             );
+        }
+
+        // Ensure session exists or create one (MVP: Just upsert if ID provided)
+        if (dbSessionId) {
+            try {
+                await prisma.chatSession.upsert({
+                    where: { userToken: dbSessionId },
+                    update: {},
+                    create: { userToken: dbSessionId }
+                });
+            } catch (e) {
+                console.error("Failed to init session", e);
+            }
+        }
+
+        // Save USER message
+        // The last message in 'messages' array is the user's new input
+        // But 'messages' here in body is the full array.
+        // We should extract the last one.
+        const lastUserMessage = messages?.[messages.length - 1];
+        if (lastUserMessage && lastUserMessage.role === 'user' && dbSessionId) {
+            try {
+                // Find session by userToken to get internal ID 
+                const session = await prisma.chatSession.findUnique({ where: { userToken: dbSessionId } });
+                if (session) {
+                    await prisma.message.create({
+                        data: {
+                            role: 'user',
+                            content: typeof lastUserMessage.content === 'string' ? lastUserMessage.content : JSON.stringify(lastUserMessage.content),
+                            image: image || null, // Base64 if present
+                            chatSessionId: session.id
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Failed to save user message", e);
+            }
         }
 
         if (!messages || !Array.isArray(messages)) {
@@ -302,9 +355,6 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        console.log('Using Hugging Face with Qwen 2.5 7B Instruct (Better Turkish support)');
-
-        // Get HuggingFace API token
         const hfToken = process.env.HUGGINGFACE_API_KEY;
 
         if (!hfToken) {
@@ -313,12 +363,39 @@ export async function POST(req: NextRequest) {
                 message: `Merhaba! 👋 Ben Safiye.
 
 Şu anda teknik bir sorunum var. Dr. Nesip ile WhatsApp'tan konuşabilirsin:
-[WHATSAPP_LINK:Merhaba Dr. Nesip, diş tedavileri hakkında bilgi almak istiyorum:Dr. Nesip ile Konuş 💬]`,
+[WHATSAPP_LINK:Merhaba Dr. Nesip, diş tedavileri hakkında bilgi almak istiyorum:Dr. Nesip ile Konuş 💬]`
             });
         }
 
-        // Hugging Face with Qwen 2.5 7B - MUCH BETTER for Turkish/Multilingual
-        const response = await fetch(
+        let model = 'Qwen/Qwen2.5-7B-Instruct';
+        let apiMessages: any[] = [
+            { role: 'system', content: SYSTEM_PROMPT },
+            ...messages,
+        ];
+
+        // If image is present, switch to Vision model and format the last message
+        if (image) {
+            console.log('Image detected, switching to Qwen 2.5(Vision)');
+            model = 'Qwen/Qwen2.5-VL-7B-Instruct';
+
+            const lastMsgIndex = apiMessages.length - 1;
+            const lastMsg = apiMessages[lastMsgIndex];
+
+            if (lastMsg.role === 'user') {
+                // OpenAI Vision format
+                apiMessages[lastMsgIndex] = {
+                    role: 'user',
+                    content: [
+                        { type: "text", text: lastMsg.content || "Analyze this image." },
+                        { type: "image_url", image_url: { url: image } }
+                    ]
+                };
+            }
+        } else {
+            console.log('Using Hugging Face with Qwen 2.5 7B Instruct (Better Turkish support)');
+        }
+
+        let response = await fetch(
             'https://router.huggingface.co/v1/chat/completions',
             {
                 method: 'POST',
@@ -327,11 +404,8 @@ export async function POST(req: NextRequest) {
                     'Authorization': `Bearer ${hfToken}`,
                 },
                 body: JSON.stringify({
-                    model: 'Qwen/Qwen2.5-7B-Instruct',
-                    messages: [
-                        { role: 'system', content: SYSTEM_PROMPT },
-                        ...messages,
-                    ],
+                    model: model,
+                    messages: apiMessages,
                     max_tokens: 800,
                     temperature: 0.7,
                     top_p: 0.9,
@@ -339,6 +413,45 @@ export async function POST(req: NextRequest) {
                 }),
             }
         );
+
+        // Fallback: If Vision model fails not due to auth (e.g. 404, 500), try standard text model
+        if (!response.ok && image && (response.status !== 401 && response.status !== 403)) {
+            console.warn(`Vision model (${model}) failed with ${response.status}, falling back to text model`);
+
+            // Switch to text model
+            model = 'Qwen/Qwen2.5-7B-Instruct';
+
+            // Clean up messages: Remove image_url, keep text
+            const lastMsgIndex = apiMessages.length - 1;
+            const lastMsg = apiMessages[lastMsgIndex];
+
+            if (lastMsg.role === 'user' && Array.isArray(lastMsg.content)) {
+                const textPart = lastMsg.content.find((c: any) => c.type === 'text');
+                apiMessages[lastMsgIndex] = {
+                    role: 'user',
+                    content: `[User uploaded an image file] ${textPart?.text || ''}`
+                };
+            }
+
+            response = await fetch(
+                'https://router.huggingface.co/v1/chat/completions',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${hfToken}`,
+                    },
+                    body: JSON.stringify({
+                        model: model, // Qwen 2.5 7B
+                        messages: apiMessages,
+                        max_tokens: 800,
+                        temperature: 0.7,
+                        top_p: 0.9,
+                        stream: false,
+                    }),
+                }
+            );
+        }
 
         console.log('HF API response status:', response.status);
 
@@ -357,6 +470,24 @@ export async function POST(req: NextRequest) {
         const data = await response.json();
         const assistantMessage = data.choices?.[0]?.message?.content?.trim()
             || 'Merhaba! Teknik bir sorun yaşıyorum. Lütfen WhatsApp üzerinden iletişime geçin 💙';
+
+        // Save SYSTEM/ASSISTANT message
+        if (dbSessionId) {
+            try {
+                const session = await prisma.chatSession.findUnique({ where: { userToken: dbSessionId } });
+                if (session) {
+                    await prisma.message.create({
+                        data: {
+                            role: 'assistant',
+                            content: assistantMessage,
+                            chatSessionId: session.id
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Failed to save assistant message", e);
+            }
+        }
 
         console.log('HF response:', assistantMessage.substring(0, 100));
 
