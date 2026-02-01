@@ -178,7 +178,8 @@ export async function generateStaticParams() {
     ];
 }
 
-export default function TreatmentPage({ params }: { params: { slug: string } }) {
+export default async function TreatmentPage(props: { params: Promise<{ slug: string }> }) {
+    const params = await props.params;
     const { slug } = params;
 
     const treatment = FALLBACK_TREATMENTS[slug as keyof typeof FALLBACK_TREATMENTS];
